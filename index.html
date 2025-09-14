@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>元素X同位素质量计算器</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #12d4ff 0%, #4df485 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+        .problem-statement {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border-left: 4px solid #3498db;
+        }
+        .input-section {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .input-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        label {
+            min-width: 150px;
+            margin-right: 10px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        input {
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+            margin-right: 10px;
+        }
+        input:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+        button {
+            background: linear-gradient(45deg, #f17df5, #f17df5);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: transform 0.2s;
+            margin: 10px 0;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+        }
+        .results {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .result-item {
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid #f1ff31;
+            background: #f0f8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .formula {
+            font-family: 'Consolas', monospace;
+            background: #ecf0f1;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 12px;
+            color: #7f8c8d;
+            margin-left: 10px;
+        }
+        .error {
+            color: #e74c3c;
+            background: #fdf2f2;
+            border-left-color: #e74c3c;
+        }
+        .sub {
+            vertical-align: sub;
+            font-size: 0.8em;
+        }
+        .sup {
+            vertical-align: super;
+            font-size: 0.8em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>元素X同位素质量计算器</h1>
+        <div class="problem-statement">
+            <p><strong>题目描述：</strong></p>
+            <p>已知元素X有两种天然同位素：<span class="sup">a</span>X 和 <span class="sup">b</span>X，其中 a < b。</p>
+            <p>同位素 <span class="sup">a</span>X 的原子百分比为 n%。</p>
+            <p>• 一个 <span class="sup">a</span>X 原子的实际质量为 m<span class="sub">a</span> kg</p>
+            <p>• 一个 <span class="sup">b</span>X 原子的实际质量为 m<span class="sub">b</span> kg</p>
+            <p>• 一个 <span class="sup">12</span>C 原子的实际质量为 m<span class="sub">c</span> kg</p>
+        </div>
+        <div class="input-section">
+            <h3>输入参数</h3>
+            <div class="input-group">
+                <label>a:</label>
+                <input type="number" id="a" placeholder="如 235">
+            </div>
+            <div class="input-group">
+                <label>b:</label>
+                <input type="number" id="b" placeholder="如 238">
+            </div>
+            <div class="input-group">
+                <label>n (%):</label>
+                <input type="number" id="n" placeholder="如 0.7" step="0.001">
+            </div>
+            <div class="input-group">
+                <label>ma (kg):</label>
+                <input type="number" id="ma" placeholder="如 3.90×10⁻²⁵" step="any">
+            </div>
+            <div class="input-group">
+                <label>mb (kg):</label>
+                <input type="number" id="mb" placeholder="如 3.95×10⁻²⁵" step="any">
+            </div>
+            <button onclick="calc()">计算所有结果</button>
+        </div>
+        <div class="results">
+            <h3>计算结果</h3>
+            <div id="res">
+                <p>请输入参数后点击计算</p>
+            </div>
+        </div>
+    </div>
+    <script>
+        function calc() {
+            const a = parseFloat(document.getElementById('a').value);
+            const b = parseFloat(document.getElementById('b').value);
+            const n = parseFloat(document.getElementById('n').value);
+            const ma = parseFloat(document.getElementById('ma').value);
+            const mb = parseFloat(document.getElementById('mb').value);
+            const mc = 1.99e-26;
+            const res = document.getElementById('res');
+            if (isNaN(a) || isNaN(b) || isNaN(n) || isNaN(ma) || isNaN(mb) || isNaN(mc)) {
+                res.innerHTML = '<div class="result-item error">请填写所有必要的数值！</div>';
+                return;
+            }
+            if (a >= b) {
+                res.innerHTML = '<div class="result-item error">a必须小于b！</div>';
+                return;
+            }
+            if (n < 0 || n > 100) {
+                res.innerHTML = '<div class="result-item error">n应在0-100之间！</div>';
+                return;
+            }
+            let html = '';
+            html += `<div class="result-item"><div><strong>1. <span class="sup">${a}</span>X 的质量数：</strong><div>${a}</div></div><span class="formula">质量数=上标数字</span></div>`;
+            const ra = (ma / mc) * 12;
+            html += `<div class="result-item"><div><strong>2. <span class="sup">${a}</span>X 的相对原子质量：</strong><div>${ra.toFixed(6)}</div></div><span class="formula">= (ma/mc)×12</span></div>`;
+            const rb = (mb / mc) * 12;
+            const rx = (n/100) * ra + (1 - n/100) * rb;
+            html += `<div class="result-item"><div><strong>3. X的相对原子质量：</strong><div>${rx.toFixed(6)}</div></div><span class="formula">= n%×ra + (100-n)%×rb</span></div>`;
+            const rx2 = (n/100) * a + (1 - n/100) * b;
+            html += `<div class="result-item"><div><strong>4. X的近似相对原子质量：</strong><div>${rx2.toFixed(6)}</div></div><span class="formula">用质量数代替相对原子质量</span></div>`;
+            const ma_mol = ra / 1000;
+            html += `<div class="result-item"><div><strong>5. <span class="sup">${a}</span>X 的摩尔质量：</strong><div>${ra.toFixed(6)} g/mol</div><div>${ma_mol.toFixed(9)} kg/mol</div></div><span class="formula">摩尔质量=相对原子质量</span></div>`;
+            const mx_mol = rx / 1000;
+            html += `<div class="result-item"><div><strong>6. X（天然比例混合）的摩尔质量：</strong><div>${rx.toFixed(6)} g/mol</div><div>${mx_mol.toFixed(9)} kg/mol</div></div><span class="formula">加权平均摩尔质量</span></div>`;
+            res.innerHTML = html;
+        }
+        function fillCl() {
+            document.getElementById('a').value = '35';
+            document.getElementById('b').value = '37';
+            document.getElementById('n').value = '75.77';
+            document.getElementById('ma').value = '5.81e-26';
+            document.getElementById('mb').value = '6.14e-26';
+        }
+        function fillB() {
+            document.getElementById('a').value = '10';
+            document.getElementById('b').value = '11';
+            document.getElementById('n').value = '19.9';
+            document.getElementById('ma').value = '1.66e-26';
+            document.getElementById('mb').value = '1.83e-26';
+        }
+        function fillU() {
+            document.getElementById('a').value = '235';
+            document.getElementById('b').value = '238';
+            document.getElementById('n').value = '0.7';
+            document.getElementById('ma').value = '3.90e-25';
+            document.getElementById('mb').value = '3.95e-25';
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            const input = document.querySelector('.input-section');
+            const btns = document.createElement('div');
+            btns.style.marginTop = '20px';
+            btns.innerHTML = `<p style="font-weight: bold; margin-bottom: 10px;">示例数据集：</p>`;
+            const clBtn = document.createElement('button');
+            clBtn.textContent = '氯 (³⁵Cl & ³⁷Cl)';
+            clBtn.onclick = fillCl;
+            clBtn.style.backgroundColor = '#27ae60';
+            clBtn.style.marginRight = '10px';
+            const bBtn = document.createElement('button');
+            bBtn.textContent = '硼 (¹⁰B & ¹¹B)';
+            bBtn.onclick = fillB;
+            bBtn.style.backgroundColor = '#e67e22';
+            bBtn.style.marginRight = '10px';
+            const uBtn = document.createElement('button');
+            uBtn.textContent = '铀 (²³⁵U & ²³⁸U)';
+            uBtn.onclick = fillU;
+            uBtn.style.backgroundColor = '#8e44ad';
+            btns.appendChild(clBtn);
+            btns.appendChild(bBtn);
+            btns.appendChild(uBtn);
+            input.appendChild(btns);
+        });
+    </script>
+</body>
+</html>
